@@ -22,7 +22,7 @@ export default function WishlistScreen() {
     });
   }, [navigation]);
 
-  const validWishlistItems = wishlistItems.filter(item => item && item.id); // Avoid undefined/null items
+  const validWishlistItems = wishlistItems.filter(item => item && item.id); // Filter null/undefined items
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
@@ -43,7 +43,7 @@ export default function WishlistScreen() {
         <Pressable onPress={() => addToCart(item)} style={styles.cartBtn}>
           <Ionicons name="cart-outline" size={20} color="white" />
         </Pressable>
-        <Pressable onPress={() => toggleWishlist(item.id)}>
+        <Pressable onPress={() => toggleWishlist(item)}>
           <Ionicons name="heart-dislike" size={22} color="red" />
         </Pressable>
       </View>
@@ -53,7 +53,9 @@ export default function WishlistScreen() {
   if (validWishlistItems.length === 0) {
     return (
       <View style={styles.center}>
-        <Text style={{ fontSize: 16, color: '#333' }}>Your wishlist is empty ❤️</Text>
+        <Text style={{ fontSize: 16, color: '#333' }}>
+          Your wishlist is empty ❤️
+        </Text>
       </View>
     );
   }
@@ -122,4 +124,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 100,
   },
-});
+}); 

@@ -7,17 +7,21 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from '../context/CartContext'; // ✅ Access wishlist methods
+import { useCart } from '../context/CartContext';
 
-const ProductCard = ({ product, onPress }) => {
-  const { addToCart, toggleWishlist, wishlistItems } = useCart();
+const ProductCard = ({ product, onPress, isWishlisted, onToggleWishlist }) => {
+  const { addToCart } = useCart();
 
-  const isWishlisted = wishlistItems.some(item => item.id === product.id);
+  if (!product || !product.id) {
+    console.warn('Invalid product passed to ProductCard:', product);
+    return null;
+  }
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
+      {/* Product Image */}
       <Image
-        source={{ uri: product.image }}
+        source={{ uri: product.image || 'https://via.placeholder.com/100' }}
         style={styles.image}
         resizeMode="contain"
       />
@@ -25,7 +29,12 @@ const ProductCard = ({ product, onPress }) => {
       {/* ❤️ Wishlist Icon */}
       <TouchableOpacity
         style={styles.heartIcon}
-        onPress={() => toggleWishlist(product)}
+        onPress={(e) => {
+          e.stopPropagation();
+          if (product && product.id) {
+            onToggleWishlist();
+          }
+        }}
       >
         <Ionicons
           name={isWishlisted ? 'heart' : 'heart-outline'}
@@ -34,12 +43,19 @@ const ProductCard = ({ product, onPress }) => {
         />
       </TouchableOpacity>
 
-      <Text numberOfLines={1} style={styles.title}>{product.title}</Text>
-      <Text style={styles.price}>₹ {product.price}</Text>
+      {/* Product Title & Price */}
+      <Text numberOfLines={1} style={styles.title}>
+        {product.title || 'Unnamed'}
+      </Text>
+      <Text style={styles.price}>₹ {product.price ?? '0.00'}</Text>
 
+      {/* Add to Cart Button */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => addToCart(product)}
+        onPress={(e) => {
+          e.stopPropagation();
+          addToCart(product);
+        }}
       >
         <Text style={styles.buttonText}>Add to Cart</Text>
       </TouchableOpacity>
@@ -74,6 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginTop: 8,
+    color: '#333',
   },
   price: {
     marginTop: 4,

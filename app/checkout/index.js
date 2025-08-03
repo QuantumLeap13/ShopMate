@@ -23,8 +23,15 @@ export default function CheckoutScreen() {
   const { clearCart } = useCart();
 
   const handlePlaceOrder = () => {
-    if (!name || !address || !phone) {
+    // Basic validation
+    if (!name.trim() || !address.trim() || !phone.trim()) {
       Alert.alert('Missing Info', 'Please fill out all fields');
+      return;
+    }
+
+    // Basic phone number check
+    if (!/^[0-9]{10}$/.test(phone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid 10-digit phone number');
       return;
     }
 
@@ -32,11 +39,13 @@ export default function CheckoutScreen() {
 
     Alert.alert(
       '🎉 Order Placed',
-      'Your order is placed.\nThank you for shopping with us!',
+      'Your order has been placed.\nThank you for shopping with us!',
       [
         {
           text: 'OK',
-          onPress: () => router.replace('/'),
+          onPress: () => {
+            router.replace('/');
+          },
         },
       ]
     );
@@ -72,6 +81,7 @@ export default function CheckoutScreen() {
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
+            maxLength={10}
           />
 
           <Pressable style={styles.button} onPress={handlePlaceOrder}>
@@ -104,6 +114,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
+    backgroundColor: '#fff',
   },
   button: {
     backgroundColor: '#2c3e50',

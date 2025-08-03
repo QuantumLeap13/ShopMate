@@ -18,11 +18,11 @@ export default function HomeScreen() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const router = useRouter();
   const navigation = useNavigation();
-  const { cartItems } = useCart();
+  const { cartItems, wishlistItems, toggleWishlist } = useCart();
 
   useEffect(() => {
     fetch('https://fakestoreapi.com/products')
@@ -59,6 +59,11 @@ export default function HomeScreen() {
             style={styles.iconButton}
           >
             <Ionicons name="heart-outline" size={24} color="#fff" />
+            {wishlistItems.length > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.badgeText}>{wishlistItems.length}</Text>
+              </View>
+            )}
           </Pressable>
           <Pressable
             onPress={() => router.push('/cart')}
@@ -74,22 +79,19 @@ export default function HomeScreen() {
         </View>
       ),
     });
-  }, [navigation, cartItems]);
+  }, [navigation, cartItems, wishlistItems]);
 
-  const renderItem = ({ item }) => (
-    <ProductCard
-      product={item}
-      onPress={() => router.push(`/product/${item.id}`)}
-      wishlist={wishlist}
-      toggleWishlist={() => {
-        setWishlist((prev) =>
-          prev.includes(item.id)
-            ? prev.filter((id) => id !== item.id)
-            : [...prev, item.id]
-        );
-      }}
-    />
-  );
+  const renderItem = ({ item }) => {
+    const isWishlisted = wishlistItems.some((p) => p.id === item.id);
+    return (
+      <ProductCard
+        product={item}
+        onPress={() => router.push(`/product/${item.id}`)}
+        isWishlisted={isWishlisted}
+        onToggleWishlist={() => toggleWishlist(item)}
+      />
+    );
+  };
 
   if (loading) {
     return (
@@ -175,4 +177,4 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 16,
   },
-});
+});  

@@ -20,32 +20,20 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId) => {
-    setCartItems((prevItems) => prevItems.filter(item => item.id !== productId));
-  };
-
-  const increaseQuantity = (productId) => {
     setCartItems((prevItems) =>
-      prevItems.map(item =>
-        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
-  };
-
-  const decreaseQuantity = (productId) => {
-    setCartItems((prevItems) =>
-      prevItems
-        .map(item =>
-          item.id === productId ? { ...item, quantity: item.quantity - 1 } : item
-        )
-        .filter(item => item.quantity > 0)
+      prevItems.filter(item => item.id !== productId)
     );
   };
 
   const updateQuantity = (productId, newQuantity) => {
     setCartItems((prevItems) =>
-      prevItems.map(item =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item
-      ).filter(item => item.quantity > 0)
+      prevItems
+        .map(item =>
+          item.id === productId
+            ? { ...item, quantity: newQuantity }
+            : item
+        )
+        .filter(item => item.quantity > 0)
     );
   };
 
@@ -53,7 +41,23 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
   };
 
-  const toggleWishlist = (product) => {
+  const toggleWishlist = (input) => {
+    let product;
+
+    // Support both product object or ID
+    if (typeof input === 'object' && input !== null && input.id) {
+      product = input;
+    } else if (typeof input === 'number' || typeof input === 'string') {
+      product = [...cartItems, ...wishlistItems].find(item => item.id === input);
+      if (!product) {
+        console.warn('Product ID not found in cart/wishlist:', input);
+        return;
+      }
+    } else {
+      console.warn('Invalid input passed to toggleWishlist:', input);
+      return;
+    }
+
     setWishlistItems((prevItems) => {
       const exists = prevItems.some(item => item.id === product.id);
       return exists
@@ -63,7 +67,9 @@ export const CartProvider = ({ children }) => {
   };
 
   const totalPrice = useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
+    return cartItems
+      .reduce((sum, item) => sum + item.price * item.quantity, 0)
+      .toFixed(2);
   }, [cartItems]);
 
   return (
@@ -72,8 +78,6 @@ export const CartProvider = ({ children }) => {
         cartItems,
         addToCart,
         removeFromCart,
-        increaseQuantity,
-        decreaseQuantity,
         updateQuantity,
         clearCart,
         totalPrice,
